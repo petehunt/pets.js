@@ -12,11 +12,13 @@ Pet = (function() {
     this.cache = {}; // never reset this you idiot
   };
 
-  Pet.prototype.run = function(body) {
+  Pet.prototype.run = function(body, cb, eb) {
     if (this.body) {
       throw new Error('Pet already running');
     }
     this.body = body;
+    this.cb = cb;
+    this.eb = eb
     this.retry();
   };
 
@@ -78,10 +80,16 @@ Pet = (function() {
     this.callbackCounter = 0;
     this.invokeCounter = 0;
     try {
-      this.body();
+      var result = this.body();
+      if (this.cb) {
+        this.cb(result);
+      }
     } catch (e) {
       if (!(e instanceof CallMeMaybe)) {
         throw(e);
+      }
+      if (this.eb) {
+        this.eb(e);
       }
     }
   };
