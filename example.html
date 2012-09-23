@@ -1,0 +1,30 @@
+<html>
+<head>
+<title>This is the epitome of good HTML style</title>
+<script type="text/javascript" src="pets.js"></script>
+<script type="text/javascript">
+// test
+
+function simulate_fetch(v, cb) {
+  console.log('simulate_fetch called for', v);
+  setTimeout(function() { cb(v); }, 0);
+};
+
+var manager = new Pet(); // "pets" is "step" backwards
+manager.run(function() {
+  var x = manager.invokeMany([
+    [simulate_fetch, 10, manager.callback()],
+    [simulate_fetch, 11, manager.callback()]
+  ]);
+  if (x[0] + x[1] == 21) {
+    console.log('good branch', manager.invoke(simulate_fetch, 'hello world', manager.callback()));
+  } else {
+    console.log('bad branch', manager.invoke(simulate_fetch, 'bye world', manager.callback()));
+  }
+});
+</script>
+</head>
+<body>
+<p>check your js console, yo</p>
+</body>
+</html>

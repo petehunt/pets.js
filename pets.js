@@ -1,4 +1,4 @@
-Manager = (function() {
+Pet = (function() {
   // LOL, this is a great idea!
 
   function NOT_READY_YET() {
@@ -8,19 +8,19 @@ Manager = (function() {
   function CallMeMaybe() {
   };
 
-  function Manager() {
+  function Pet() {
     this.cache = {}; // never reset this you idiot
   };
 
-  Manager.prototype.run = function(body) {
+  Pet.prototype.run = function(body) {
     if (this.body) {
-      throw new Error('Manager already running');
+      throw new Error('Pet already running');
     }
     this.body = body;
     this.retry();
   };
 
-  Manager.prototype.callback = function() {
+  Pet.prototype.callback = function() {
     var id = this.callbackCounter++;
     var invokeID = this.invokeCounter;
 
@@ -48,7 +48,7 @@ Manager = (function() {
     }.bind(this);
   };
 
-  Manager.prototype.invokeMany = function(calls) {
+  Pet.prototype.invokeMany = function(calls) {
     var id = this.invokeCounter++;
     var totalCallbacks = this.callbackCounter;
     this.callbackCounter = 0;
@@ -69,12 +69,12 @@ Manager = (function() {
     throw new CallMeMaybe();
   };
 
-  Manager.prototype.invoke = function(func) {
+  Pet.prototype.invoke = function(func) {
     var args = Array.prototype.slice.call(arguments).slice(1);
     return this.invokeMany([[func].concat(args)])[0];
   };
 
-  Manager.prototype.retry = function() {
+  Pet.prototype.retry = function() {
     this.callbackCounter = 0;
     this.invokeCounter = 0;
     try {
@@ -86,26 +86,5 @@ Manager = (function() {
     }
   };
 
-  return Manager;
+  return Pet;
 })();
-
-// test
-
-function simulate_fetch(v, cb) {
-  console.log('simulate_fetch called for', v);
-  setTimeout(function() { cb(v); }, 0);
-};
-
-var manager = new Manager();
-manager.run(function() {
-  var x = manager.invokeMany([
-    [simulate_fetch, 10, manager.callback()],
-    [simulate_fetch, 11, manager.callback()]
-  ]);
-  // lol, dood, you can branch and loop and shit without giving a crap!!!
-  if (x[0] + x[1] == 21) {
-    console.log('good branch', manager.invoke(simulate_fetch, 'hello world', manager.callback()));
-  } else {
-    console.log('bad branch', manager.invoke(simulate_fetch, 'bye world', manager.callback()));
-  }
-});

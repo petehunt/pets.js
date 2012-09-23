@@ -14,6 +14,11 @@ don't actually call that function and instead we just return the result. If we h
 the fetch and throw an exception to bail out. When the fetches come back, we call the function again from the
 beginning. Keep looping until it's all done. Brilliant!
 
+Future work
+===========
+
+Build a Deferred-based abstraction on this maybe?
+
 FAQ
 ===
 
