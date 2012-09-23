@@ -1,14 +1,16 @@
 Pets.js
 =======
 
-JS is a terrible language but we have to live with it. Even after reading Crockford you're still stuck with
-its crappy evented I/O. Well, evented I/O isn't bad in and of itself, but without some sort of coroutine (like
-goroutines, tasklets or generators, which every reasonable language implements these days) it really blows to do
+I built this in a few hours in the middle of the night so please forgive how crappy this is.
+
+JS is a pretty terrible language but we have to live with it. Even after reading Crockford you're still stuck
+with its crappy evented I/O. Well, evented I/O isn't bad in and of itself, but without some sort of coroutine
+(like goroutines, tasklets or generators, which most reasonable languages implements these days) it's hard to do
 multiple rounds of fetching. Also it's really hard for newbies to grasp which sucks when they are trying to do a
 hackathon or something.
 
 So I came up with this terrible idea that makes your code look synchronous. Basically it's just a special way to
-invoke functions that expects callbacks as if they were synchronous. How is this black magic accomplished? Well
+invoke functions that expect callbacks as if they were synchronous. How is this black magic accomplished? Well
 basically when you invoke a function we construct a unique key and check if we've fetched it yet. If we have we
 don't actually call that function and instead we just return the result. If we have not yet called it, we queue
 the fetch and throw an exception to bail out. When the fetches come back, we call the function again from the
