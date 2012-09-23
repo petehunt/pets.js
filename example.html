@@ -3,8 +3,8 @@
 <title>This is the epitome of good HTML style</title>
 <script type="text/javascript" src="pets.js"></script>
 <script type="text/javascript">
-// test
 
+// simulate an asynchronous call
 function simulate_fetch(v, cb) {
   console.log('simulate_fetch called for', v);
   setTimeout(function() { cb(v); }, 0);
@@ -12,16 +12,25 @@ function simulate_fetch(v, cb) {
 
 var manager = new Pet(); // "pets" is "step" backwards
 manager.run(function() {
+  // run these guys in parallel
   var x = manager.invokeMany([
     [simulate_fetch, 10, manager.callback()],
     [simulate_fetch, 11, manager.callback()]
   ]);
   if (x[0] + x[1] == 21) {
+    // Check this out, we computed something based on the previous concurrent fetches and branched and did another fetch
+    // without a bunch of callback spaghetti. Go us!
     console.log('good branch', manager.invoke(simulate_fetch, 'hello world', manager.callback()));
+    return 'hello good world';
   } else {
     console.log('bad branch', manager.invoke(simulate_fetch, 'bye world', manager.callback()));
+    return 'hello bad world';
   }
-});
+},
+function(result) {
+  console.log('you can add an optional callback to get the return value', result);
+}
+);
 </script>
 </head>
 <body>
