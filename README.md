@@ -5,7 +5,7 @@ I built this in a few hours in the middle of the night so please forgive how cra
 
 JS is a pretty terrible language but we have to live with it. Even after reading Crockford you're still stuck
 with its crappy evented I/O. Well, evented I/O isn't bad in and of itself, but without some sort of coroutine
-(like goroutines, tasklets or generators, which most reasonable languages implements these days) it's hard to do
+(like goroutines, tasklets or generators, which most reasonable languages implement these days) it's hard to do
 multiple rounds of fetching. Also it's really hard for newbies to grasp which sucks when they are trying to do a
 hackathon or something.
 
