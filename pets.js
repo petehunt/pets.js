@@ -1,4 +1,4 @@
-(function() {
+Manager = (function() {
   // LOL, this is a great idea!
 
   function NOT_READY_YET() {
@@ -13,6 +13,9 @@
   };
 
   Manager.prototype.run = function(body) {
+    if (this.body) {
+      throw new Error('Manager already running');
+    }
     this.body = body;
     this.retry();
   };
@@ -28,7 +31,7 @@
         value = value[0];
       }
       if (!this.cache[invokeID] || this.cache[invokeID][id] !== NOT_READY_YET) {
-        throw new Error(JSON.stringify(['Oh shit: ', invokeID, id, this.cache]));
+        throw new Error('Error during invoke: ' + invokeID + ' for callback '+ id + '. This should not happen.');
       }
       this.cache[invokeID][id] = value;
       // Check if this step is done, if it is then retry!
@@ -47,19 +50,20 @@
 
   Manager.prototype.invokeMany = function(calls) {
     var id = this.invokeCounter++;
-    //var args = Array.prototype.slice.call(arguments).slice(1);
+    var totalCallbacks = this.callbackCounter;
+    this.callbackCounter = 0;
     if (this.cache[id]) {
       return this.cache[id];
     }
     this.cache[id] = [];
-    for (var i = 0; i < this.callbackCounter; i++) {
+    for (var i = 0; i < totalCallbacks; i++) {
       this.cache[id].push(NOT_READY_YET);
     }
-    this.callbackCounter = 0;
     // Now invoke the fetches and bail out
     for (var i = 0; i < calls.length; i++) {
-      var func = calls[0];
-      var args = calls.slice(1);
+      var call = calls[i];
+      var func = call[0];
+      var args = call.slice(1);
       func.apply(null, args);
     }
     throw new CallMeMaybe();
@@ -67,7 +71,7 @@
 
   Manager.prototype.invoke = function(func) {
     var args = Array.prototype.slice.call(arguments).slice(1);
-    return this.invokeMany([func].concat(args))[0];
+    return this.invokeMany([[func].concat(args)])[0];
   };
 
   Manager.prototype.retry = function() {
@@ -82,17 +86,26 @@
     }
   };
 
-  this.Manager = Manager;
-}).bind(this)();
+  return Manager;
+})();
 
 // test
 
-function magic(v, cb) {
+function simulate_fetch(v, cb) {
+  console.log('simulate_fetch called for', v);
   setTimeout(function() { cb(v); }, 0);
 };
 
-var manager = new this.Manager();
+var manager = new Manager();
 manager.run(function() {
-  var x = manager.invoke(magic, 10, manager.callback());
-  console.log('got', x);
+  var x = manager.invokeMany([
+    [simulate_fetch, 10, manager.callback()],
+    [simulate_fetch, 11, manager.callback()]
+  ]);
+  // lol, dood, you can branch and loop and shit without giving a crap!!!
+  if (x[0] + x[1] == 21) {
+    console.log('good branch', manager.invoke(simulate_fetch, 'hello world', manager.callback()));
+  } else {
+    console.log('bad branch', manager.invoke(simulate_fetch, 'bye world', manager.callback()));
+  }
 });
